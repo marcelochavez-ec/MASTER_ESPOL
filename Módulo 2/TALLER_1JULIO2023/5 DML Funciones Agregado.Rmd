@@ -1,0 +1,82 @@
+---
+title: "MAESTRÍA EN ESTADÍSTICA APLICADA/ MANEJO DE DATOS"
+output:
+  html_document: 
+    df_print: paged
+  word_document: default
+---
+**Unidad 3: Recopilación, integración y manipulación y almacenamiento de datos**
+
+*3.4.	Funciones de Agregado*
+
+En la sección 3.1 se vio como establecer una conexión con el DBMS de MySQL, para la manipulación y procesamiento de los datos mediante SQL, utilizaremos nuevamente la conexión por usuario DSN. 
+
+Sintaxis de conexión:
+
+```{r paged.print=TRUE}
+#install.packages("RODBC")                                          #instalación de paquete RODBC
+library(RODBC)                                                      #referencia a la librería RODBC
+con<-odbcConnect("MySQLConexion_world", uid = "root", pwd="marce")  #Establecer la conexión con el DBMS
+
+```
+
+En esta sección nuevamente se trabajará con la función sqldf( ), mediante la cual es posible utilizar las sintaxis convencional de SQL en el entorno de R. Para el uso de la función sqldf, vamos a requerir previamente que los datos se almacenen en un Dataframe, se trabajará con los registros de la tabla country y city  de la base de datos "world" de MySQL.
+
+
+```{r warning=FALSE}
+library(sqldf)
+df_country<-sqlQuery(con,"Select * from country")                       #Ejecutar una sentencia SQL
+df_city<-sqlQuery(con,"Select * from city")  
+
+```
+
+**Funciones de agregación**
+
+Una función de agregación es una función que resume las filas de un grupo en un solo valor. COUNT, MIN y MAX son ejemplos de funciones de agregación.
+
+*COUNT: devuelve el número total de filas seleccionadas por la consulta.
+*MIN: devuelve el valor mínimo del campo que especifiquemos.
+*MAX: devuelve el valor máximo del campo que especifiquemos.
+*SUM: suma los valores del campo que especifiquemos. Sólo se puede utilizar en columnas numéricas.
+*AVG: devuelve el valor promedio del campo que especifiquemos. Sólo se puede utilizar en columnas numéricas.
+
+*Aplicación directa para resumir*
+Todas estas funciones se aplican a una sola columna, que especificaremos entre paréntesis, excepto la función COUNT, que se puede aplicar a una columna o indicar un “*”.
+
+
+```{r}
+df_res18<-sqldf("select min(population) 'min', max(population) 'max', count(*) 'count', sum(population) 'sum', avg(population) 'avg', variance(population) 'var' from df_country", connection=NULL)
+df_res18
+```
+
+
+
+
+*Aplicación agrupando registro y resumiendo por grupo*
+La cláusula GROUP BY unida a un SELECT permite agrupar filas según las columnas que se indiquen como parámetros, y se suele utilizar en conjunto con las funciones de agrupación, para obtener datos resumidos y agrupados por las columnas que se necesiten.
+
+Hemos visto en el ejemplo anterior que obteníamos sólo una fila con los datos indicados correspondientes a toda la tabla. Ahora vamos a ver con otro ejemplo cómo obtener datos correspondientes a diversos grupos de filas, concretamente agrupados.
+
+```{r}
+df_res19=sqldf("select Continent, min(population) as 'min' , max(population) as 'max', sum(population) as 'sum', avg(population) as 'avg' , variance(population) as 'var' 
+          , sqrt(variance(population)) as 'sd' from df_country group by Continent")
+df_res19
+```
+
+
+**Actividad 1:** *Considerando la tabla ciudad(df_city), agrupe por el código país y determine sobre el campo población las siguientes medidas max, sum, avg, variance y desviación estándar.*
+
+**Actividad 2:** *Considerando la tabla país(df_country), agrupe por el Sistema de Gobierno (GovernmentForm) y determine sobre el campo GNP las siguientes medidas max, sum, avg, variance y desviación estándar.*
+
+**Actividad 3:** *Determine aquellos lenguajes (idiomas) que se hablan en más de 10 países*
+```{r}
+acti_3= sqlQuery(con, "select Language,count(*) from countrylanguage group by language having count(*) > 10")
+acti_3
+```
+
+
+**Actividad 4:** *Determine para cada lenguaje(idioma), la cantidad de población que habla dicho idioma. Nota: Recuerde considerar el porcentaje de habla asociado al idioma*
+
+
+
+
