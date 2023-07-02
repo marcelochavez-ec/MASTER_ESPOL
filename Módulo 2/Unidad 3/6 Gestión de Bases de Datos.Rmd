@@ -1,0 +1,93 @@
+---
+title: "MAESTRÍA EN ESTADÍSTICA APLICADA/ MANEJO DE DATOS"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+**Unidad 3: Recopilación, integración y manipulación y almacenamiento de datos**
+
+*3.5.	Gestión de Base de datos*
+
+
+Para el análisis de datos mediante Rstudio, es de importancia el manejo de la base de datos; la cual puede referirse a una fuente local de datos o una externa. En ambos casos es primordial la Gestión sobre la Base de Datos.
+
+Las operaciones básicas previas al análisis de datos, que se deben considerar en la Gestión de la Base de datos son:
+
+1. Carga inicial y organización de datos
+2. Limpieza y transformación de datos
+3. Carga final de datos
+
+
+Hasta ahora se ha trabajado con conexión a DBMS para obtener tablas de datos de una Base de Datos, sin embargo, otras fuentes de datos podrías ser los archivos de datos, en los distintos formatos; en esta sección revisaremos la lectura de archivos de tipo SPSS y EXCEL, que son dos tipos de los más comunes.
+
+
+**Lectura de datos desde un archivo SPSS**
+
+Para la carga de los datos de un archivo SPSS, lo primero es instalar el paquete "haven" que cuenta con funciones para abrir bases de datos desde diferentes formatos. Para la lectura de datos, se utiliza la función read_spss() indicando el archivo y directorio desde donde se leerá, finalmente se organiza los datos en un dataframe.
+
+```{r message=FALSE, warning=FALSE}
+#Gestor de BD
+#Importar Archivo SPSS
+#install.packages("haven")
+library(haven)
+CEP <- read_spss("C:\\Users\\Academico\\Documents\\encuesta_cep81_sep_oct2017\\Encuesta CEP 81 Sep-Oct 2017 v1.sav")
+```
+
+Una vez cargado los datos en el dataframe, es recomendable conocer la estructura de la tabla y explorar visualmente los datos.
+
+```{r}
+str(CEP)    #conocer la estructura de la tabla de datos
+View(CEP)   #Visualizar los datos
+head(CEP,10)
+```
+
+
+
+**Lectura de datos desde un archivo EXCEL**
+Otro formato relevante para el trabajo con base de datos es el ecosistema integrado por los diferentes tipos de planillas de cálculo vinculadas al software Microsoft Excel. 
+En esta instancia se usará el paquete readxl que previamente se debe descargar e instalar en el computador. Específicamente se usará la función read_excel de este paquete en su versión más simple - sin argumentos adicionales - indicando solamente el nombre del archivo a leer.
+
+
+```{r}
+#Importar Achivo EXCEL
+#install.packages("readxl") #Descarga e instalación del paquete
+library(readxl) #Cargar paquete en sesión de trabajo de R
+CEP_excel  <- read_excel("C:\\Users\\Academico\\Documents\\encuesta_cep81_sep_oct2017\\CEP_sep-oct_2017.xlsx", sheet = 2) #Leer libro excel
+str(CEP_excel)
+View(CEP_excel)
+head(CEP_excel,10)
+```
+
+
+**Lectura de datos desde un archivo csv**
+
+En ocasiones los Sistemas Informáticos exportan datos en formatos csv o el proveedor de la fuente de datos nos comparte archivos de datos en dicho formato; existen varias funciones de origen en Rstudio que nos permite leer datos de un archivo csv.
+
+```{r}
+CEP_csv<-read.csv("C:\\Users\\Academico\\Documents\\encuesta_cep81_sep_oct2017\\CEP_sep-oct_2017.csv", sep=";", dec = ".", header = TRUE)
+str(CEP_csv)
+head(CEP_csv,10)
+```
+
+
+**Almacenamiento de datos en formato RData**
+
+Luego de la conexión a una fuente de datos y lectura de los mismos, es recomendable almacenar los datos leídos en un archivo propio de R (.RData); el comando "save" permite guardar un objeto de formato RData.
+
+```{r}
+save(CEP, file = "Encuesta.RData")
+```
+
+
+**Lectura de objeto almacenado en un archivo RData**
+
+Para leer el objeto almacenado en el archivo de extensión RData, directamente se utiliza el comando load().
+
+
+```{r}
+load(file = "Encuesta.RData")
+```
+
+

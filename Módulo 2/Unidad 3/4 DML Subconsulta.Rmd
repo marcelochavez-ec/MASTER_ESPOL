@@ -1,0 +1,62 @@
+---
+title: "MAESTRÍA EN ESTADÍSTICA APLICADA/ MANEJO DE DATOS"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+**Unidad 3: Recopilación, integración y manipulación y almacenamiento de datos**
+
+*3.3.	Selección y recuperación de datos (Queries SQL) de tablas relacionadas, por medio de comandos del software estadístico.*
+
+En la sección 3.1 se vio como establecer una conexión con el DBMS de MySQL, para la manipulación y procesamiento de los datos mediante SQL, utilizaremos nuevamente la conexión por usuario DSN. 
+
+Sintaxis de conexión:
+
+```{r paged.print=TRUE}
+#install.packages("RODBC")                                          #instalación de paquete RODBC
+library(RODBC)                                                      #referencia a la librería RODBC
+con<-odbcConnect("MySQLconexion1", uid = "root", pwd="Matias2710")  #Establecer la conexión con el DBMS
+
+```
+
+En esta sección nuevamente se trabajará con la función sqldf( ), mediante la cual es posible utilizar las sintaxis convencional de SQL en el entorno de R. Para el uso de la función sqldf, vamos a requerir previamente que los datos se almacen en un Dataframe, se trabajará con los registros de la tabla country, city y countrylanguage de la base de datos "world" de MySQL.
+
+
+```{r warning=FALSE}
+library(sqldf)
+df_country<-sqlQuery(con,"Select * from country")                       #Ejecutar una sentencia SQL
+df_city<-sqlQuery(con,"Select * from city")  
+df_language<-sqlQuery(con,"Select * from countrylanguage")  
+```
+
+
+**CONSULTAS ANIDADAS**
+
+En SQL se puede plantear consultas anidadas, es decir, una consulta B cuyo resultado requiere de la ejecución de una consulta A.
+
+**Consulta anidada con IN**
+
+```{r}
+df_res14<-sqldf("select Name, CountryCode, Population from df_city where CountryCode in (select CountryCode from df_language where Percentage>80)", connection=NULL)
+head(df_res14,20)
+```
+
+
+
+**Actividad 1:** *Determine el listado de países donde no se habla el idioma Inglés o que el porcentaje en la población hablá el lenguaje es menor al 10%*
+
+
+
+
+**Consulta anidada con función de agregado**
+```{r}
+df_res15<-sqldf("SELECT * FROM df_city WHERE COUNTRYCODE='BRA' AND POPULATION> (SELECT AVG(POPULATION) FROM df_city WHERE COUNTRYCODE='BRA') ", connection=NULL)
+head(df_res15,20)
+```
+
+
+
+**Actividad 2:** *Considerando los países en donde se habla el idioma inglés, determine el porcentaje promedio de la población que habla dicho idioma; luego elabore un reporte con los datos de los países cuyo porcentaje de habla inglesa supere al promedio calculado previamente*
+
+

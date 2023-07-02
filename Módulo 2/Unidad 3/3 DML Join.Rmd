@@ -1,0 +1,104 @@
+---
+title: "MAESTRÍA EN ESTADÍSTICA APLICADA/ MANEJO DE DATOS"
+output: word_document
+---
+**Unidad 3: Recopilación, integración y manipulación y almacenamiento de datos**
+
+*3.3.	Selección y recuperación de datos (Queries SQL) de tablas relacionadas, por medio de comandos del software estadístico.*
+
+En la sección 3.1 se vio como establecer una conexión con el DBMS de MySQL, para la manipulación y procesamiento de los datos mediante SQL, utilizaremos nuevamente la conexión por usuario DSN. 
+
+Sintaxis de conexión:
+
+```{r paged.print=TRUE}
+#install.packages("RODBC")                                          #instalación de paquete RODBC
+library(RODBC)                                                      #referencia a la librería RODBC
+con<-odbcConnect("MySQLconexion1", uid = "root", pwd="Matias2710")  #Establecer la conexión con el DBMS
+
+```
+
+En esta sección nuevamente se trabajará con la función sqldf( ), mediante la cual es posible utilizar las sintaxis convencional de SQL en el entorno de R. Para el uso de la función sqldf, vamos a requerir previamente que los datos se almacenen en un Dataframe, se trabajará con los registros de la tabla country, city y countrylanguage de la base de datos "world" de MySQL.
+
+
+```{r warning=FALSE}
+library(sqldf)
+df_country<-sqlQuery(con,"Select * from country")                       #Ejecutar una sentencia SQL
+df_city<-sqlQuery(con,"Select * from city")  
+df_language<-sqlQuery(con,"Select * from countrylanguage")  
+```
+
+Conozcamos el tipo de objeto y la estructura de df_city y df_language:
+
+```{r}
+str(df_city)      #str nos indica la estructura del objeto
+```
+
+```{r}
+str(df_language)
+```
+
+
+Es natural encontrar que los datos se almacenan en diferentes fuentes o tablas de datos, las cuales se relacionan por medio de claves foráneas; en esta ocasión se utilizará la función sqldf() para crear consultas de datos que extraigan registros de varias tablas relacionadas.
+
+<center>![Diagrama Relacional](C:\\Users\\Academico\\Documents\\SILABO DE MANEJO DE DATOS\\imagenes\\DiagramaER.jpeg)</center>
+
+
+
+**JOIN**
+
+Los JOINs en SQL sirven para combinar filas de dos o más tablas basándose en un campo común entre ellas, devolviendo por tanto datos de diferentes tablas. Un JOIN se produce cuando dos o más tablas se juntan en una sentencia SQL.
+Los JOINs más utilizados en SQL son:
+
+1) INNER JOIN: Devuelve todas las filas cuando hay al menos una coincidencia en ambas tablas.
+2) LEFT JOIN: Devuelve todas las filas de la tabla de la izquierda, y las filas coincidentes de la tabla de la derecha.
+3) RIGHT JOIN: Devuelve todas las filas de la tabla de la derecha, y las filas coincidentes de la tabla de la izquierda.
+4) OUTER JOIN: Devuelve todas las filas de las dos tablas, la izquierda y la derecha. También se llama FULL OUTER JOIN.
+
+**INNER JOIN**
+
+INNER JOIN selecciona todas las filas de las dos columnas siempre y cuando haya una coincidencia entre las columnas en ambas tablas. Es el tipo de JOIN más común.
+Por ejemplo, obtenga un listado con los datos de ciudad, población de ciudad y continente. 
+
+```{r}
+df_res11<-sqldf("SELECT A.Name, A.Population, B.Continent FROM df_city A
+INNER JOIN df_country B on A.CountryCode=B.Code ", connection=NULL)
+head(df_res11,15)
+```
+
+
+**Actividad 1:** *Obtenga un listado con los siguientes datos: Ciudad, País, Continente y Language.*
+
+**Actividad 2:** *Obtenga un listado con los siguentes datos: Ciudad, País, Languague; considere seleccionar solo aquellos paises en donde el porcentaje de habitantes que hablan el respectivo lenguague sea mayor al 70%.*
+
+**LEFT JOIN**
+
+LEFT JOIN mantiene todas las filas de la tabla izquierda (la tabla1). Las filas de la tabla derecha se mostrarán si hay una coincidencia con las de la izquierda. Si existen valores en la tabla izquierda pero no en la tabla derecha, ésta mostrará null.
+Para el siguiente ejemplo se citan tablas que no pertenecen a la Base de Datos "world", por lo tanto no se usará la conexión a la base de datos. 
+Supongamos que se dispone de las tablas Clientes (df_clientes) y Pedidos (df_pedidos); se nos solicita conocer el listado de clientes con su respectivo código de pedido, debe incluir en el listado a los clientes que no hayan realizado pedido alguno, ordene el listado por nombre del cliente.
+
+Sintaxis:
+
+df_res<-sqldf("SELECT Clientes.NombreCliente, Pedidos.PedidoID FROM Clientes LEFT JOIN Pedidos
+ON Clientes.ClienteID=Pedidos.ClienteID ORDER BY Clientes.NombreCliente ", connection=NULL)
+
+Resultado:
+<center>![Diagrama Relacional](C:\\Users\\Academico\\Documents\\SILABO DE MANEJO DE DATOS\\imagenes\\LeftJoin.png)</center>
+
+Ahora vemos que se muestran todas las filas de la tabla Clientes, que es la tabla de la izquierda, tantas veces como haya coincidencias con el lado derecho. Marco Lambert no ha realizado ningún pedido, por lo que se muestra null.
+
+**UNION**
+
+```{r}
+df_res11<-sqldf("SELECT A.Name as 'Ciudad', A.Population as 'PoblacionCiudad', B.Name as 'Pais' FROM df_city A
+INNER JOIN df_country B on A.CountryCode=B.Code and B.Continent='Europe' and B.population>50000000", connection=NULL)
+df_res12<-sqldf("SELECT A.Name as 'Ciudad', A.Population as 'PoblacionCiudad', B.Name as 'Pais' FROM df_city A
+INNER JOIN df_country B on A.CountryCode=B.Code and B.Continent='South America' and B.population>50000000 ", connection=NULL)
+df_res13<-sqldf("select Ciudad,PoblacionCiudad,Pais from df_res11 
+                UNION
+                select Ciudad,PoblacionCiudad,Pais from df_res12", connection=NULL)
+head(df_res13,20)
+```
+
+
+
+**Actividad 3** *Tomando como referencia el lenguaje oficial de cada país, determine para cada ciudad la cantidad de habitantes que habla dicha idioma.*
