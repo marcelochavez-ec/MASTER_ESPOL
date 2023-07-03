@@ -1,0 +1,67 @@
+---
+title: "Querys en SQL"
+author: "Ing. Marcelo Chávez"
+date: "2023-07-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(RODBC)
+library(DT)
+con <- odbcConnect("sakila", uid="root", pwd="marce")
+```
+
+## Carga de Tablas desde MySQL de la BDD: Sakila (Tienda de alquiler de videos)
+
+```{r}
+# Conexión a las tablas de datos:
+
+df_country <- sqlQuery(con, "select * from country")
+customer<-sqlQuery(con,"Select * from customer")
+store<-sqlQuery(con,"Select * from store")
+rental<-sqlQuery(con,"Select * from rental")
+payment<-sqlQuery(con,"Select * from payment")
+inventory<-sqlQuery(con,"Select * from inventory")
+film<-sqlQuery(con,"Select * from film")
+category <- sqlQuery(con, "select * category")
+```
+
+## Querys:
+
+Query Nro. 3: Determine todo el historial de rentas y pagos del cliente NATALIE MEYER (nombre apellido). El reporte debe tener los siguientes campos: CustomerID, first_name, last_name, rental_id, rental_date, payment_id, payment_date, amount. Muestre las primeras 10 filas.
+
+### Script de respuesta:
+
+```{r}
+query_3 <- sqlQuery(con, "select 
+                    c.customer_id,
+                    c.first_name,
+                    c.last_name,
+                    r.rental_id,
+                    r.rental_date,
+                    p.payment_id,
+                    p.payment_date,
+                    p.amount
+                    from customer c
+                    inner join payment p on c.customer_id = p.customer_id
+                    inner join rental r on r.rental_id = p.rental_id
+                    where first_name = 'NATALIE' and last_name = 'MEYER'")
+```
+
+```{r}
+# Crear un objeto flextable
+datatable(query_3,
+          options = list(
+            dom = 't',
+            paging = T,
+            pageLength = 10,
+            ordering = F,
+            searching = T,
+            info = F,
+            autoWidth = T,
+            columnDefs = list(list(className = 'dt-center', targets = '_all'))),
+          class = 'display')
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
