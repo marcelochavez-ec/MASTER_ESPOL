@@ -1,8 +1,9 @@
 update.packages(ask = "yes", checkBuilt = TRUE, Ncpus = parallel::detectCores(), repos="https://mirror.cedia.org.ec/CRAN/")
 
-do you want to install from sources the packages which need compilation? yes/no/cancel
-
 find.package("nombre_de_libreria")
+
 dev.off()
+
 rm(list = ls())
+
 install.packages("dplyr", lib = "C:/Program Files/SoftwareR/R/R-4.2.2/library/", dependencies=T)
