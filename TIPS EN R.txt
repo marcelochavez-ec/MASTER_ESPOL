@@ -1,9 +1,0 @@
-update.packages(ask = "yes", checkBuilt = TRUE, Ncpus = parallel::detectCores(), repos="https://mirror.cedia.org.ec/CRAN/")
-
-find.package("nombre_de_libreria")
-
-dev.off()
-
-rm(list = ls())
-
-install.packages("dplyr", lib = "C:/Program Files/SoftwareR/R/R-4.2.2/library/", dependencies=T)

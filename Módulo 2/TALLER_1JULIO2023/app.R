@@ -1,6 +1,8 @@
 library(shiny)
 library(shinythemes)
 
+library(base)
+
 # Definir UI
 ui <- fluidPage(
   theme = shinytheme("cosmo"),
