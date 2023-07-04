@@ -2,6 +2,8 @@ library(shiny)
 library(RPostgreSQL)
 library(highcharter)
 
+library(base)
+
 # Crear una conexión a la base de datos PostgreSQL
 con <- dbConnect(PostgreSQL(), dbname = "prac_diabetes", host = "localhost",
                  port = 5432, user = "postgres", password = "marce")

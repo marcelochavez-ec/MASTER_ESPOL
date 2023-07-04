@@ -1,6 +1,8 @@
 library(RPostgreSQL)
 library(highcharter)
 
+library(base)
+
 # Crear una conexión a la base de datos PostgreSQL
 con <- dbConnect(PostgreSQL(), 
                  dbname = "prac_diabetes", 
